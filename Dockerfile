@@ -21,7 +21,7 @@ RUN set -eux; \
 # add gosu for easy step-down from root
 # https://github.com/tianon/gosu/releases
 
-ENV GOSU_VERSION 1.16
+ENV GOSU_VERSION=1.16
 
 # 安装构建依赖
 RUN set -eux; \
@@ -93,7 +93,7 @@ RUN set -eux; \
     # ensure these directories exist and have useful permissions
     # the rpm package has different opinions on the mode of `/var/run/mysqld`, so this needs to be after install
     mkdir -p /var/lib/mysql /var/run/mysqld /var/log/mysql; \
-    chown mysql:mysql /var/lib/mysql /var/run/mysqld /usr/local/bin/docker-entrypoint.sh /etc/mysql /var/log/mysql; \
+    chown -R mysql:mysql /var/lib/mysql /var/run/mysqld /usr/local/bin/docker-entrypoint.sh /etc/mysql /var/log/mysql; \
     # ensure that /var/run/mysqld (used for socket and lock files) is writable regardless of the UID our mysqld instance ends up having at runtime
     chmod 1777 /var/lib/mysql /var/run/mysqld; \
     \
