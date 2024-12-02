@@ -1,5 +1,5 @@
 # mysql5.7.44-docker
-参考msyql官方docker镜像制作
+背景是公司使用的MySQL版本是5.7，而MySQL官方没有支持M1芯片的的5.7版本，homebrew也默认最低版本是8.4了，所以就参考msyql官方docker镜像制作了这个自编译的MySQL5.7的镜像
 
 1、采用自编译MySQL的方式制作5.7.44的镜像，这样就能支持amd64和arm64架构的机器
 
