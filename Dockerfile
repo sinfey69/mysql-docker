@@ -27,6 +27,8 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
     rpcgen
 
 WORKDIR /usr/src/mysql-5.7.44
+# 将修改了boost下载地址的文件覆盖到源码包里，提高boost下载速度
+COPY boost.cmake cmake/
 
 # 编译 MySQL
 RUN cmake . -DDOWNLOAD_BOOST=1 -DWITH_BOOST=/usr/local/boost && \
