@@ -10,4 +10,9 @@ SET(BOOST_DOWNLOAD_URL
   )
 ```
 
-3、源码包里新增了个MySQL的默认配置。mysql-5.7.44/support-files/my-default.cnf
+3、构建和执行
+```
+docker build -t menzai/mysql-5.7.44-alpine:v2 .
+
+docker run -p 3306:3306 -d -e MYSQL_ROOT_PASSWORD=a123456 --name mysql5.7.44 -it menzai/mysql-5.7.44-alpine:v2
+```
