@@ -1,4 +1,4 @@
-FROM debian:stretch-slim
+FROM debian:stretch-slim AS builder
 
 # 设置代理环境变量
 ENV HTTP_PROXY=http://192.168.10.231:7777
@@ -15,44 +15,14 @@ RUN echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/99archive &
 	echo 'Acquire::http::Proxy "http://192.168.10.231:7777";' >> /etc/apt/apt.conf.d/99archive && \
 	echo 'Acquire::https::Proxy "http://192.168.10.231:7777";' >> /etc/apt/apt.conf.d/99archive
 
-# add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
-RUN groupadd -r mysql && useradd -r -g mysql mysql
-
-# add gosu for easy step-down from root
-ENV GOSU_VERSION=1.7
-COPY gosu-1.7-arm64 /usr/local/bin/gosu
-
-RUN chmod +x /usr/local/bin/gosu \
-	&& gosu nobody true
-
-RUN mkdir /docker-entrypoint-initdb.d
-
 RUN set -x; \
 	apt-get update && apt-get install -y --no-install-recommends --allow-unauthenticated \
-	# for MYSQL_RANDOM_ROOT_PASSWORD
-	pwgen \
-	# FATAL ERROR: please install the following Perl modules before executing /usr/local/mysql/scripts/mysql_install_db:
-	# File::Basename
-	# File::Copy
-	# Sys::Hostname
-	# Data::Dumper
-	# perl \
-	# mysqld: error while loading shared libraries: libaio.so.1: cannot open shared object file: No such file or directory
-	libaio1 \
-	# mysql: error while loading shared libraries: libncurses.so.5: cannot open shared object file: No such file or directory
-	libncurses5 \
 	build-essential \
 	libncurses5-dev \
 	cmake \
 	git \
 	bison \
 	&& rm -rf /var/lib/apt/lists/*
-
-ENV MYSQL_MAJOR=5.5
-ENV MYSQL_VERSION=5.5.62
-
-# 拷贝docker启动执行脚本
-COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
 WORKDIR /usr/src
 # 拷贝 MySQL 源码
@@ -67,7 +37,54 @@ RUN cmake . && \
 	make && \
 	make install
 
+FROM debian:stretch-slim
+
+# add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
+RUN groupadd -r mysql && useradd -r -g mysql mysql
+
+# add gosu for easy step-down from root
+ENV GOSU_VERSION=1.7
+COPY gosu-1.7-arm64 /usr/local/bin/gosu
+RUN chmod +x /usr/local/bin/gosu \
+	&& gosu nobody true
+
+# 拷贝docker启动执行脚本
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN mkdir /docker-entrypoint-initdb.d
+
+ENV MYSQL_MAJOR=5.5
+ENV MYSQL_VERSION=5.5.62
+
+RUN mkdir -p /usr/local/mysql/
+COPY --from=builder /usr/local/mysql /usr/local/mysql
+
 ENV PATH=$PATH:/usr/local/mysql/bin:/usr/local/mysql/scripts
+
+
+# 更改更新源
+RUN echo "deb http://snapshot.debian.org/archive/debian/20210701T000000Z/ stretch main" > /etc/apt/sources.list && \
+	echo "deb http://snapshot.debian.org/archive/debian/20210701T000000Z/ stretch-updates main" >> /etc/apt/sources.list && \
+	echo "deb http://snapshot.debian.org/archive/debian-security/20210701T000000Z/ stretch/updates main" >> /etc/apt/sources.list
+
+# 1、不对依赖包做过期检查 2、apt配置文件以使用代理
+RUN echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/99archive && \
+	echo 'Acquire::http::Proxy "http://192.168.10.231:7777";' >> /etc/apt/apt.conf.d/99archive && \
+	echo 'Acquire::https::Proxy "http://192.168.10.231:7777";' >> /etc/apt/apt.conf.d/99archive
+
+RUN set -x; \
+	apt-get update && apt-get install -y --no-install-recommends --allow-unauthenticated \
+	# for MYSQL_RANDOM_ROOT_PASSWORD
+	pwgen \
+	# FATAL ERROR: please install the following Perl modules before executing /usr/local/mysql/scripts/mysql_install_db:
+	# File::Basename
+	# File::Copy
+	# Sys::Hostname
+	# Data::Dumper
+	# perl \
+	# mysqld: error while loading shared libraries: libaio.so.1: cannot open shared object file: No such file or directory
+	libaio1 \
+	# mysql: error while loading shared libraries: libncurses.so.5: cannot open shared object file: No such file or directory
+	libncurses5 
 
 # replicate some of the way the APT package configuration works
 # this is only for 5.5 since it doesn't have an APT repo, and will go away when 5.5 does
