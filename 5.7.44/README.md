@@ -15,3 +15,5 @@ docker build -t menzai/mysql-5.7.44-alpine:v2 .
 
 docker run -p 3306:3306 -d -e MYSQL_ROOT_PASSWORD=a123456 --name mysql5.7.44 -it menzai/mysql-5.7.44-alpine:v2
 ```
+
+4、官方Dockerfile文件及自启动文件https://github.com/docker-library/mysql/commit/3e959c224b965b0dd92a59a1dedeb7c34a24f550

@@ -48,3 +48,5 @@ docker build -t menzai/mysql-5.5.62:v1 .
 
 docker run -p 3306:3306 -d -e MYSQL_ROOT_PASSWORD=a123456 --name mysql5.5.62 -it menzai/menzai/mysql-5.5.62:v1
 ```
+
+4、官方Dockerfile文件及自启动文件https://github.com/docker-library/mysql/commit/98f958b67cf45af464c3ad4521a1e2af71398650

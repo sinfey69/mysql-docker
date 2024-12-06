@@ -3,7 +3,7 @@ FROM debian:stretch-slim
 # 设置代理环境变量
 ENV HTTP_PROXY=http://192.168.10.231:7777
 ENV HTTPS_PROXY=http://192.168.10.231:7777
-ENV NO_PROXY=localhost,127.0.0.1e
+ENV NO_PROXY=localhost,127.0.0.1
 
 # 更改更新源
 RUN echo "deb http://snapshot.debian.org/archive/debian/20210701T000000Z/ stretch main" > /etc/apt/sources.list && \
