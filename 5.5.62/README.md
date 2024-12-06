@@ -2,7 +2,7 @@
 
 1、采用自编译MySQL的方式制作5.5.62的镜像，这样就能支持amd64和arm64架构的机器
 
-2、修改了MySQL源码，解决新版gcc编译不兼容旧版gcc4.8的问题。mysql-5.7.44/sql-common/client_plugin.c
+2、修改了MySQL源码，解决新版gcc编译不兼容旧版gcc4.8的问题。mysql-5.5.62/sql-common/client_plugin.c
 ```
 --- mysql-5.5.62.orig/sql-common/client_plugin.c
 +++ mysql-5.5.62/sql-common/client_plugin.c
