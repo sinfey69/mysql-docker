@@ -84,7 +84,12 @@ RUN set -x; \
 	# mysqld: error while loading shared libraries: libaio.so.1: cannot open shared object file: No such file or directory
 	libaio1 \
 	# mysql: error while loading shared libraries: libncurses.so.5: cannot open shared object file: No such file or directory
-	libncurses5 
+	libncurses5
+
+# 设置时区环境变量
+ENV TZ=Asia/Shanghai
+RUN ln -sf /usr/share/zoneinfo/$TZ /etc/localtime && \
+	echo $TZ > /etc/timezone
 
 # replicate some of the way the APT package configuration works
 # this is only for 5.5 since it doesn't have an APT repo, and will go away when 5.5 does
